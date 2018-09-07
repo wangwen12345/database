@@ -1,0 +1,150 @@
+
+
+mysql> create table t21(
+    -> name char(3) not null,
+    -> age tinyint(2) default 21,
+    -> sex enum("m","w") not null default "m"
+    -> ) default charset=utf8;
+
+mysql> insert into t21(name) values("bob");
+
+================修改表结构的命令格式============
+alter table 表名 执行动作;
+执行动作:    add      添加字段
+        modify     修改字段类型
+        change     修改字段名
+          rename   修改别名 alter
+     alter table t6  add email varchar(50) default "stu@tedu.cn", add tel char;
+     alter table t6  add class char(7) default "nsd1806" first, add qq varchar(11) after meeting;
+
+     alter table t6  modify tel char(11) after qq;
+     alter table t6  change email mail varchar(60) default "stu@tedu.cn";
+
+删除列column:       mysql> alter table t21 drop age,drop sex;(需要保留一列)
+
+
+=================键值==================
+              mysql键值
+作用:限制如何给字段赋值  给字段的值排队
+
+普通索引 index
+主键      primary key
+外键      foreign key
+
+
+========================================
+普通索引 index
+1 索引介绍
+2 索引的有点
+3 索引的确定
+4 使用索引    //查看 创建 删除 使用规则         
+查看表是否创建索引----------------->desc 表名;
+查看索引详细信息-------------------->show index from 表名;
+  
+已有表建索引:      create index 索引名(可以随意取) on 表名(字段名);
+查看使用的索引:   explain select * form 表名 where 字段名="bob" \G;
+建表时建索引     create table t27( name char(10), age int(2), class char(7), index(name), index(age) );
+查看              show index from t27\G;
+删索引:           drop index 索引名 on 表名;
+
+============primary key 主键============
+规则:
+一个表只能有一个primary key字段
+对应字段值不允许有重复和空值
+如果有多个字段都作为primary key,称为复合主键,必须一起创建
+通常与auto_increment连用,让字段值自加1 
+经常把中能够唯一标识记录的字段设置未主键字段
+
+新建主键:    alter table t5 add primary key(name,stu_id);
+查询键信息:  show index from t5\G
+删除主键:    mysql> alter table jfb drop primary key;
+
+自增长:primary key auto_increment
+
+create table t221(
+ id int(1) primary key auto_increment,
+  age tinyint(1) unsigned,
+  class char(4)
+  );
+insert into t221(age,class) values(12,"1806");
+insert into t221(age,class) values(82,"1807");
+insert into t221(age,class) values(12,"1806");
+insert into t221(age,class) values(12,"1806"); 
+
+
+================索引=================
+索引是对记录集的多个字段进行排序的方法
+排序(算法)有:    btree b+tree hash 
+默认btree算法  又叫二叉树算法
+
+优点: 数据的唯一性,加快数据检索速度
+缺点: 当对数据进行增 删 改时 索引也要修改,维护速度慢; 需要占用物理空间
+
+
+================foreign key外键===============
+建表指定存储引擎----------->create table 表名(.....) engine=innodb;
+
+外键定义: 给表的字段赋值时,字段的值在另一张表的字段值中选择
+使用条件:
+         表的引擎必须是innodb
+         字段类型要一致
+         被参照字段必须是索引类型的一种(一般为主键primary key)      
+ 基本用法:
+           create table 表名(
+              fname char(10) primary key,
+              pay float(7,2) default 28000
+                 )engine=innodb; 
+             insert into xfb(fname) values("bob");
+             insert into xfb(fname) values("tom");
+             insert into xfb(fname) values("lucy");
+
+建外键表:       create table xsb(
+                xname char(10) ,
+                sex  enum("m","w") default "m",foreign key(xname) references xfb(fname) on update cascade on delete cascade)engine=innodb;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
