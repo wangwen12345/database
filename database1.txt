@@ -1,15 +1,15 @@
+
 virsh list --all //列出所有虚拟机
 print键2下可以替换文本文件里的内容
 
 virsh console mysql55 //不配IP直接控制mysql55
-
 virsh start mysql55  //启动mysql55
-
 ctrl +] 退出virsh模式
 
+免密登录 ssh-keygen -N '' -f /root/.ssh/id_rsa //非交互式生成密钥文件 
 for i in mysql{50..56} 
 >do
->ssh-copy-ip $i
+>ssh-copy-ip $i()
 >done
 
 for i in mysql{50..56}; do ssh $i "hostnamectl set-hostname $i" done
@@ -41,7 +41,7 @@ rm -rf /etc/my.cnf /var/lib/mysql
 启动服务
 
 常见的数据库软件:
-oracle(甲骨文): oracle database  mysql
+oracle(甲骨文): 1、oracle database   2、mysql
 开源:mariadb
 微软: sql server     access
 IBM:db2
@@ -59,7 +59,8 @@ sybase:sybase
 
 查找mysql初始密码: cat /var/log/mysqld.log | grep password 
 登录:mysql -hlocalhost -uroot -p"初始密码"
-修改密码:alter user root@"localhost" identified by "Ww12345...";
+修改密码:alter user root@"localhost" identified by "123qqq...";
+增加用户:grant select on 库名.* 用户名@"localhost" identified by "密码";
 
 把数据存储到数据库服务器的步骤
   连接数据库服务器: 命令行、程序连接(脚本)、图形工具
@@ -68,7 +69,7 @@ sybase:sybase
   创建库:create database 库名(可以使用数字/字母/下划线,不能纯数字,区分大小写,不能使用关键字特殊字符);
   切换库:use 库名;
   显示当前所在库: select database();
-  
+  建库的时候指定中文:create database procedure_function default character set utf8
   删除库: drop database 库名;
 
   建表:create table 库名.表名(
@@ -91,7 +92,7 @@ sybase:sybase
    查看当前有哪些库:    show datebases;
  
    结束当前命令   \c   
-   建表使用汉字需要指定字符集------------> utf8
+   建表使用汉字需要指定字符集------------> utf8   格式default charset=utf8
    查看表的默认字符集: show create table t2;   //末尾latin1
     create table 学生表(
      姓名 char(15),
@@ -107,7 +108,7 @@ sybase:sybase
     数值型:体重 身高 成绩 工资
      类型       大小    范围(有符号)   范围(无符号)   用途   
     tinyint  1字节    -128~127        0~255         微小整数
-     float   4字节    格式:float(4.2)99.99
+     float   4字节    格式:float(4.2) 99.99
        int   4字节   -2^23~2^23-1    0~2^24-1       大整数
         
     字符型:姓名 工作单位 地

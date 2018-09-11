@@ -30,15 +30,15 @@ commit;                              //提交数据
 修改数据库默认引擎:vim /etc/my.cnf   数据文件 /var/lib/mysql
                      [mysqld]
           default-storage-engine=myisam(引擎名)   //添加一行
-          重启服务: systemctl restart mysqld
+                 重启服务: systemctl restart mysqld
 
  innodb特点:支持事务,事务回滚,外键
-              支持行级锁定
+              支持行级锁定                      //写操作多的时候使用
 相关表文件: .frm 存储表结构    /var/lib/mysql/表名
          .ibd  表数据和索引信息
 
  myisam特点:不支持事务,事务回滚,外键
-               支持表级锁
+               支持表级锁                      //读操作多的时候使用
 相关表文件: .frm  表结构         desc 表名;
           .myd  存储表数据     delect * from 表名;
           .myi  存储索引信息   index
@@ -61,6 +61,12 @@ commit;                              //提交数据
 ===============数据管理===================
 
 mysql>system cp /etc/passwd /var/lib/mysql-files/  //在登录数据库下执行系统命令
+修改默认路径/var/lib/mysql-files
+vim /etc/my.cnf
+    [mysql]
+secure_file_priv="新路径"
+
+重启服务systemctl restart mysqld
 建表  create table user( 
               name char(30), 
              passwd char(1), 

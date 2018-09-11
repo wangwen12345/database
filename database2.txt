@@ -13,7 +13,7 @@ alter table 表名 执行动作;
 执行动作:    add      添加字段
         modify     修改字段类型
         change     修改字段名
-          rename   修改别名 alter
+          rename   修改别名 alter table t3 rename t4;
      alter table t6  add email varchar(50) default "stu@tedu.cn", add tel char;
      alter table t6  add class char(7) default "nsd1806" first, add qq varchar(11) after meeting;
 
@@ -103,7 +103,7 @@ insert into t221(age,class) values(12,"1806");
                 sex  enum("m","w") default "m",foreign key(xname) references xfb(fname) on update cascade on delete cascade)engine=innodb;
 
 
-
+update 表名 set name="tom" where name="bob";  //修改字段内容
 
 
 
