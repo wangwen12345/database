@@ -22,7 +22,9 @@ systemctl start mysqld
 systemctl stop mysqld
 rm -rf /var/lib/mysql/*
 systemctl start mysqld
-grep password /var/lib/mysql |tail -1
+grep password /var/log/mysqld.log |tail -1
+mysql -hlocalhost -uroot -p'sfK,)-JH<4p2'
+mysql> alter user  user() identified by "123qqq...A";
 
 1.3数据备份策略？
 完全备份---------->备份所有数据(所有库,一个库下的所有表,)
@@ -87,7 +89,7 @@ mysql -uroot -p123qqq...A db3 -e "flush logs"
 mkdir /mylog
 chown mysql /mylog
 vim /etc/my.cnf
-log-bin=/mylog/plj
+log_bin=/mylog/plj
 
 默认日志文件超过500M自动创建新的日志文件
 show master status
@@ -112,7 +114,7 @@ purge master logs to "binlog文件名"
 mysqlbinlog /var/lib/mysql/mysql50-bin.000001 |grep -i insert  //-i 不区分大小写
 mysqlbinlog --start-postion=s数字  --stop-postion=数字 /var/lib/mysql/mysql50-bin-000001 |mysql -uroot -p密码
 指定时间范围选项
-mysqlbinlog --start-postion="2018-09-13 15:30" /var/lib/mysql/mysql50-bin-000001 |mysql -uroot -p密码
+mysqlbinlog --start-datetime="2018-09-13 15:30" /var/lib/mysql/mysql50-bin-000001 |mysql -uroot -p密码
 
 
 方法2  安装第3方软件percona提供备份命令 innobackupex 对数据做增量备份
@@ -121,9 +123,10 @@ xtrabackup--------->一款强大的在线热备份工具 xtrabackup
     由专业组织percona提供
 主要含2个组件
     xtrabackup:c程序,支持innodb,xtradb
-    innibackupex 以perl脚本封装xtrabackup,还支持myisam         
+    innobackupex 以perl脚本封装xtrabackup,还支持myisam         
 
 备份:innobackupex --user root --password 123qqq...A /allbak --no-timestamp
+innobackupex --user root --password 123qqq...A  --databases="库名 库名1 ..." /allbak --no-timestamp
 恢复:systemctl stop mysqld
      rm -rf /var/lib/mysql/*
       mkdir /var/lib/mysql
@@ -135,7 +138,64 @@ xtrabackup--------->一款强大的在线热备份工具 xtrabackup
 增量备份与恢复
 恢复完全备份中的单个表
 
-增量备份的工作过程
+完全备份: innobackupex --user root --password 123qqq...A  /ww --no-timestamp
+ipdata1 备份数据时未提交的数据
+xtrabackup_checkpoints  备份的数据
+
+增量备份的工作过程(mysql51)
+增量备份: innibackupex --user root --password 123qqq...A  --incremental /new1dir --incremental-basedir=/ww --no-timestamp
+--no-timestamp 不用日期命名备份存储的子目录名
+
+cd /var/lib/mysql 事务日志文件
+ib_logfile0
+ib_logfile1
+ibdata1 
+
+恢复表:
+1 导出表信息
+2 创建删除的表
+3 删除表空间     //存储书库的表文件 .idb
+4 拷贝表信息文件到数据库目录下
+5 修改表文件的所有者和组在mysql
+6 导入表信息
+备份:innobackupex --user root --password 123qqq...A  --databases="db5" /db5full --no-timestamp
+1 ]# innobackupex --user root --password 123qqq...A --databases="db5" --apply-log --export /db5full
+
+2 create table b(name char(10));
+
+3 alter table db5.b discard tablespace;
+
+4 cp /db5full/db5/b.{cdg,exp,ibd} /var/lib/mysql/db5/
+
+5 chown mysql:mysql /var/lib/mysql/b.*
+
+6 alter table db5.b import tablespase;
+select * from b;
+
+]# rm -rf /var/lib/mysql/db5/b.{cfg.exp}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lsn 日志序列号
+ipdata1.meta 
+ipdata1.delta  备份数据时未提交的数据
+xtrabackup_checkpoints      备份的数据
+
+00 18 * * 1 /root/innobackupex.sh  1完全备份
+00 18 * * 2-7  /root/innobackupex1.sh 2-7增量备份
+
+
 
 软件介绍
 安装软件
@@ -161,7 +221,7 @@ for i in mysql{50.56}; do ssh $i "chmod 400 ./.ssh/id_rsa"; done 该私钥文件
 
 
 
-
+flush privileges 刷新表
 
 
 
