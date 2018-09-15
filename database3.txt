@@ -113,12 +113,50 @@ select name,uid from user where name in ("bob","mysql","adm","zhangsan");范围�
 distinct 字段名 去重显示
 select distinct shell from user;
 
+=============================================================
+模糊匹配
+名字中有a的-------> select name from user where name like '%a%';  // %匹配0~N个
+4个字符-------------> select name from user where name like '____';  // _匹配单个字符
+4个及以上----------> select name from user where name like '%____%' ;  
 
+正则匹配 
+格式---------------> where 字段名 regexp '正则'
+只有4个字符 select name,uid from user where name regexp '^....$';
+包含4个字符 select name,uid from user where name regexp '....';
+包含连续4个数字 select name from user where name regexp '[0-9]{4}';
 
+四则运算
+select name,age,2018-age from user where name='root'; 显示2018减去age的值
+select name,uid from user where uid % 2 = 0;          显示uid为偶数
+select name,uid,gid,(uid+gid)/2 pjz from user where name="root"; 取gid和uid的平均值放入 pjz字段中 pjz字段只是临时的
+让表中age字段值加上1 update user set age=age+1;
 
+聚集函数
+select count(name) from user; //统计name字段值有多少个
+avg(字段名) 平均值
+sum(字段名)  和
+min(字段名)   最小值
+max(字段名)   最大值
+count(字段名)  数值个数
 
+查询结果排序
+select * from user order by name desc 降序排列 (默认asc升序)  
+sql查询 order by 字段名;
 
+查询结果分组
+select shell from user group by shell;
+select 字段名1 from 表 group by 字段名1;
 
+结果查询过滤
+sql查询  having 条件表达式;   将查询结果放到内存里,节约资源
+mysql> select shell from user group by shell having shell="/sbin/nologin";
+sql查询  where  条件表达式;   每次都要重新一行一行查找
+
+限制查询结果显示行数
+
+sql查询 limit n; //显示查询结果前n行 显示1到n行
+sql查询 limit n,m  //从n+1行开始显示,共 第"n+1"到"n+m"行
+select * from user limit 3,5;查询结果第4行开始显示共5行
 
 
 

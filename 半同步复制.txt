@@ -1,0 +1,50 @@
+mysql> show  variables  like  'have_dynamic_loading';
++----------------------+-------+
+| Variable_name        | Value |
++----------------------+-------+
+| have_dynamic_loading | YES   |
++----------------------+-------+
+1 row in set (0.00 sec)
+
+INSTALL PLUGIN rpl_semi_sync_master  SONAME 'semisync_master.so';
+
+INSTALL PLUGIN rpl_semi_sync_slave  SONAME  'semisync_slave.so’;    
+
+select  plugin_name, plugin_status 
+from information_schema.plugins
+where plugin_name like "%semi%";
+
+SET GLOBAL rpl_semi_sync_master_enabled = 1;
+SET GLOBAL rpl_semi_sync_slave_enabled = 1;
+
+show  variables  like  'rpl_semi_sync_%_enabled'; 	 
+
+++++++++++++++++++++++++++++
+]# vim  /etc/my.cnf
+[mysqld]
+plugin-load = "rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+
+rpl-semi-sync-master-enabled = 1
+rpl-semi-sync-slave-enabled = 1
+:wq
+]# systemctl  restart mysqld
+
+>select  plugin_name, plugin_status
+from information_schema.plugins
+where plugin_name like "%semi%";
+ 
+>
+show  variables  like  'rpl_semi_sync_%_enabled';
+
+
+
+
+
+
+
+
+
+
+
+
+

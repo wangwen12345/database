@@ -49,7 +49,7 @@ tar -xf phpMyAdmin-2.11.11-all-languages.tar.gz -C /var/www/html/
   cp config.sample.inc.php  config.inc.php
 6 vim config.inc.php
  查询数据库用户权限  
-grant  all on *.* to   dba@localhost; 
+select all on *.* to   dba@localhost; 
 收回数据库用户权限
 revoke all on *.* from dba@localhost;
 2.1  管理数据库服务器的方式有那些？  命令行   mysql   
@@ -65,19 +65,19 @@ revoke all on *.* from dba@localhost;
 ***********************用户授权和权限撤销****************************
 三、用户授权与权限撤销
 3.0  管理员密码管理
-恢复数据库管理员本机登录密码
+恢复数据库管理员本机登录密码 (不知道原来的密码)
 1  修改配置文件跳过密码   systemctl stop mysql
 vim /etc/my.cnf
 [mysqld]
 skip-grant-tables
 systemctl restart mysqld
 2   mysql
-  update mysql.user set authentication_string=password(123qqq...A) where
+update mysql.user set authentication_string=password(123qqq...A) where
 user="root" and host="localhost";
    flush privileges(特权);
 
 修改数据库管理源本机登录的密码（需要知道当前登录的密码）
-mysqladmin   -hlocalhost  -uroot   -p   password  "新密码"
+mysqladmin   -hlocalhost  -uroot   -p"旧密码"   password  "新密码"
 进入数据库后修改用户密码
 alter user user() identified by "密码";
 
@@ -148,7 +148,10 @@ drop user mydba;
 用户对数据库有过授权才可以撤销
 
 语法格式  revoke  权限列表  on  数库名  from 用户名@"客户端地址" ;
-revoke grant option on *.* from mydba@'%';
+
+撤销方式: 
+          1命令撤销  revoke grant option on *.* from mydba@'%';
+          2 修改授权库表记录      
 
 
 3.5 数据库服务器使用授权库存储授权信息
@@ -162,8 +165,35 @@ information_schema 虚拟库 不占用物理存储空间 数据存储在物理�
                                   存储已有库和表的信息
 
 
-
 3.6 工作中如何授权:
 给管理者授权     给完全权限 且有授权权限
 给使用者授权     只给select  和  insert 权限  
+
+
+grant all on db5.* to yaya@'192.168.4.51' identified by '123qqq...A' with grant option; //本机无db5库的话会自动创建
+grant insert on mysql.*  to yaya@'192.168.4.51';                                         //授权权限还需要给mysql有写入权限
+revoke
+select * from user where name="yaya"\G;
+update mysql.db set Insert_priv="N" where name=yaya and db='db5' and host="192.168.4.51";
+
+授权用户连接后该密码: set password=password("新密码");
+管理员重置授权用户密码: set password for 用户名@'password'=password("新密码")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
