@@ -125,7 +125,9 @@ vim  /etc/maxscale.cnf
 grant replication slave,replicaiton client on *.* to scalemon@"%" identified by '123qqq...A';
 grant select on mysql.* to scaleuser@"%" identified by '123qqq...A';
 4 启动服务
+maxscale -f /etc/maxscale.cnf
 5 查看服务进程和端口
+netstat -utnlp  | grep maxscale
 
 2.2.3 测试配置
 a 在本机访问管理管端口查看监控状态
@@ -142,6 +144,12 @@ mysql>  执行插入或查询 （ 在51 和 52 本机查看记录）
 +++++++++++++++++++++++++++++++++++++++++++++++++
 二、mysql多实例
 2.1 多实例介绍
+在一台物理主机上运行多个数据库服务
+
+为何使用多实列?
+节约运维成本
+提高硬件利用率
+
 2.2 配置多实例
 1 环境准备
 2 安装提供多实例服务的mysql数据库服务软件
@@ -152,6 +160,7 @@ mysql>  执行插入或查询 （ 在51 和 52 本机查看记录）
 mysqld = /usr/local/mysql/bin/mysqld_safe   #服务启动调用的进程   
 mysqladmin = /usr/local/mysql/bin/mysqladmin   
 
+[mysqld1]
 port=3307  #监听端口
 datadir=/data3307   #数据库目录
 socket=/data3307/mysqld.sock    #sock文件
@@ -225,6 +234,8 @@ c 、提供服务软件的版本低，导致性能低下：
 1 查看服务运行时的参数配置   my.cnf
 mysql> show  variables;
 mysql> show  variables   like "%innodb%";
+
+=================================================
 2 常用参数：
 并发连接数量
 Max_used_connections/max_connections=0.85
@@ -235,9 +246,12 @@ set  global   max_connections  =   数字；
 
 连接超时时间
 show   variables   like   "%timeout%";
-connect_timeout  客户端与服务器建立连接时tcp三次握手超时是时间
-wait_timeout  户端与服务器建立连接后，等待执行sql命令的超时时间。
-
+connect_timeout  客户端与服务器建立连接时tcp三次握手超时是时间(默认10秒)
+wait_timeout  户端与服务器建立连接后，等待执行sql命令的超时时间(默认28800秒)
+===================================================
+缓存参数控制
+key_buffer_size 用于myisam引擎的关键索引缓存大小
+sort_buffer_size 
 
 可以重复使用的线程的数量  thread
 show   variables   like   "%thread%";
@@ -277,6 +291,7 @@ pc2 select    name  from t1  where name="bob";
 
 pc3  update  t1  set  name="jack" wehre  name="bob";
 
+==================================================
 查看查询缓存的统计信息：
 show   global   status   like   "qcache%";
 Qcache_hits        10     记录在查询缓存里查询到数据的次数     
@@ -316,10 +331,14 @@ mysql> set global
 
 
 
+数据库网站帮助:dev.mysql.com/doc
 
+数据库密码忘记
+vim /etc/my.cnf
+skip-grant-tables
+update  mysql.user set authentication_string=password('123qqq...A') where user='root' and host='localhost';
 
-
-
+plush privileges; 刷新特权
 
 
 
