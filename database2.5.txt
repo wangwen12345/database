@@ -1,0 +1,676 @@
+  duplicate 重复  procedure 程序 variable 可变的
+
+一、MySQL视图
+1.1 视图(view)介绍
+------>虚拟表
+------>内容与真是的表相似,有字段有记录
+------>视图并不在数据库中以存储的数据形式存在
+------>行和列的数据来自定义视图查询所引用的基表,并在具体引用视图时动态生成
+------>更新视图的数据,就是更新基表的数据
+------>更新基表的数据,视图数据也会改变
+
+1.2 视图优点
+简单:
+    用户不需关心视图中的数据如何查询获得
+    视图中的数据已经是过滤号的符合条件的结果集
+安全:
+    用户只能看到数据中的数据
+数据独立:
+    一旦视图结构确定,可以屏蔽表结构对用户的影响
+
+1.3 使用视图的限制
+--------->不能在视图上创建索引
+--------->在视图的from子句中不能使用子查询
+--------->以下情形中的视图是不可更新的
+       1 包含以下关键子的sql语句:聚合函数(sum、min、max、count等)、distinct(去重显示)、group by、having、union或union all
+       2 常量视图、join、from一个不能更新的视图
+     3 where 字句的子查询引用了from字句中的表
+       4 使用了临时表
+
+1.4 视图的基本使用
+1.4.1 创建视图
+mysql> create database db9;
+mysql> create  table db9.user(
+    -> name char(50),
+    -> password  char(1),
+    -> uid  int,
+    -> gid  int,
+    -> comment  char(100),
+    -> homedir  char(120),
+    -> shell char(30)
+    -> );
+mysql> system cp /etc/passwd  /var/lib/mysql-files/
+mysql> load data  infile "/var/lib/mysql-files/passwd" 
+into table db9.user fields terminated by ":" lines terminated by "\n";
+mysql> alter  table  db9.user 
+add id int primary key auto_increment first;
+mysql> select  * from db9.user;
+
+use  db9;
+create  view  v1  as  select  name,uid from user;
+create  view  v2(vname,vuid)  as  select  name,uid from user limit 10;
+
+1.4.2 操作视图表 （select  insert  update delete）
+select name,uid from v1 where name="root";
+insert into v1(name,uid) values("bob",666);
+update v1 set name='admin' where name='root';   //视图表字段值改变,基表也会改变
+delete from v1 where name="root";
+
+1.4.3 查看已有的视图表
+show table status  where Comment="view"\G
+show create view 视图表名;                       //查看视图表怎么创建的
+1.4.4 删除视图表
+drop view v1;
+
+1.5 视图进阶
+
+
+1.5.1  创建视图 给基表的字段 设置别名 as
+create view v4(aname,bname) as select t1.name,t2.name from t1 left join t2 on t1.name=t2.name;
+create view v3 as select a.name as aname,b.name as bname from t1 a left join t2 b on
+a.name=b.name;
+
+1.5.2  覆盖方式创建视图or  replace
+create or replace view v4 as select * from user; //创建视图若已有v4那么覆盖原有的V4表 
+
+1.5.3 视图的执行方式 
+1.5.4 创建视图时，指定对视图的检查方式。wich check option
+local 仅检查当前视图的限制
+cascaded 同时满足基表的限制(默认)
+
+create view v6 as select * from user2 where uid<=100 with local check option;
+update v6 set uid=101 where uid=11;  //执行报错 uid范围<=vv100
+
+create view v7 as select name,uid,shell from user2 where uid>=10 and uid<=50;
+create view v8 as select * from v7 where uid>=20 with cascaded check option;  //uid范围未20-50
+
+======================mysql的存储过程===============================
+二、MySQL存储过程(是MySQL服务里的脚本)
+2.1 存储过程介绍
+数据库中保存的一系列sql命令的集合
+
+2.2 存储过程的优点
+提高性能
+减轻网络负担
+防止对表的直接访问
+避免重复编写sql操作
+
+2.3 存储过程的基本使用
+2.3.1 创建存储过程
+delimiter //
+create procedure p1()
+begin
+ select * from db9.user limit 10;
+end
+//
+delimiter;
+
+2.3.2  调用存储过程
+call p1;
+ 
+2.3.3  删除存储过程 
+drop procedure p1;
+
+2.3.4  查看服务器上已有的存储过程及功能
+
+show procedure status; 查看有那些存储过程
+select db,name,type from mysql.proc
+select body from mysql.proc where name="p1"; 查看指定的存储过程的sql指令
+
+
+3 mysql变量类型：会话变量  全局变量  用户变量(set) 局部变量(用declare来定义)
+show global variables;  //查看当前全局变量 (变量前有@@)
+show session varibles;   //查看当前会话变量
+set session sort_buffer_size=40000  //修改会话变量
+
+select count(id) into @lines from db9.user; //定义用户变量
+select @lines;
+
+delimiter //
+create procedure p3()
+begin
+   declare x int(5) default 1;
+   declare y char(10);
+   set y = "bob";
+   select x;
+   select y;
+end
+//
+delimiter ;
+
+4 存储过程参数类型：in   out    inout
+mysql> delimiter //
+mysql> create procedure p5(in sname char(25))
+    -> begin
+    -> declare x int(1);
+    -> set x = 0;
+    -> select count(name) into x from db9.user where shell=sname;
+    -> select x;
+    -> end
+    -> //
+Query OK, 0 rows affected (0.00 sec)
+mysql> delimiter ;
+mysql> call p5("/bin/bash");
+
+mysql> delimiter //
+mysql> create procedure p6(out usernum int(2))
+    -> begin
+    -> select count(name) into usernum from db9.user;
+    -> select usernum;
+    -> end
+    -> //
+Query OK, 0 rows affected (0.00 sec)
+mysql> delimiter ;
+mysql> call p6(@x);   //将username的值赋给变量@x
+
+mysql> delimiter //
+mysql> create procedure p7(inout num int(2))
+    -> begin
+    -> select count(name) into num from db9.user where uid <=1000;
+    -> select num;
+    -> end
+      -> //
+delimiter ;
+call p7(@x);
+
+
+
+
+
+
+
+
+
+
+
+
+5 MySQL存储过程数学计算
+set @z=1+2;  select @z;
+set @x=1;set @y=2; set @z=@x*@y; select @z;
+set @x=1;set @y=2; set @z=@x-@y; select @z;
+set @x=1;set @y=2; set @z=@x/@y; select @z;
+
+set @z=10 div 3; select @z (z值未3) div 整除运算
+set @z=10%3;     select @z (z值为1)  %  取模,取余
+
+delimiter //
+create procedure p4()
+begin 
+declare x int(2);
+declare y int(2);
+declare z int(2);
+select count(name) into x from db9.user where shell="/bin/bash";
+select count(name) into y from db9.user where shell="/sbin/nologin";
+set z = x + y;
+select x;
+select y;
+select z;
+end
+//
+delimiter;
+
+6 MySQL存储过程流程控制  if     循环结构
+
+if 条件判断 then
+   ....
+   ....
+end if;
+
+if 条件判断 then
+    .....
+    .....
+else
+   .....
+   .....
+end if;
+
+ 6.2 循环结构
+wihle 条件判断 do
+   ....
+   ....
+end while;
+
+delimiter //
+create procedure p9(in x int(2))
+begin
+if x is not null then
+select * from db9.user where id = x;
+else
+select * from db9.user where id = 1;
+end if;
+end
+//
+delimiter ;
+call p9(3);
+select @z;
+call p9(@z);
+
+
+delimiter //
+create procedure p12()
+begin
+declare x int(2);
+ set x = 1;
+ while x <= 10 do
+ select x;
+ set x = x + 1;
+ end while;
+end
+//
+delimiter ;
+
+ ===================loop死循环=================
+无条件、反复执行某一段代码
+loop
+  循环
+end loop;
+
+==============repeat条件式循环=============
+条件成立时结束循环
+repeat 
+ 循环体
+ until 条件判断
+ end repeat;
+
+delimiter //
+create procedure p13()
+begin
+  declare x int(2);
+ set x = 10;
+ repeat
+ select x;
+ set x = x-1;
+ until x < 1
+ end repeat;
+end
+//
+delimiter ;
+ 
+
+
+
+
+
+
+++++++++++++++++++++++++
+执行p10储存过程时，显示指定uid号的用户是否在db9库下的user表
+
+里存在，如果不指定uid号的话，显示root用户的信息。
+
+执行p11储存过程时,能够根据用户要输出记录的行数 数据表中的记录
+
+。不指定输出的行数时，默认输出表中的第1行。
+
+mysql> create database db9;
+mysql> create  table db9.user(
+    -> name char(50),
+    -> password  char(1),
+    -> uid  int,
+    -> gid  int,
+    -> comment  char(100),
+    -> homedir  char(120),
+    -> shell char(30)
+    -> );
+mysql> system cp /etc/passwd  /var/lib/mysql-files/
+mysql> load data  infile "/var/lib/mysql-files/passwd" 
+into table db9.user fields terminated by ":" lines terminated by "\n";
+mysql> alter  table  db9.user 
+add id int primary key auto_increment first;
+
+mysql> select  * from db9.user;
++++++++++++++++++++++++++++++++++++++
+use  db9;
+create  view  v1  as  select  name,uid from user;
+
+create  view  v2(vname,vuid)  
+as  
+select  name,uid from user limit 10;
+
+show  tables;
+system ls /var/lib/mysql/db9
+desc  v1;
+desc  v2;
+
+select  *  from v1;
+select  *  from v2;
+
+grant select,insert  on db9.v1  
+to user10@"%" identified by "123qqq...A";
+
+
+++++++++++++++++++++++++++++++
+
+use  db9;
+mysql> show  table  status;
+mysql> show  table  status  where  comment="view"\G;
+
+
+mysql> show  create view  v1;
+
++++++++++++++++++++++++++++
+client :
+]# mysql  -h192.168.4.50  -uuser10 -p123qqq...A  db9
+mysql> show  grants;
+mysql> desc v1;
+mysql> insert into  v1 values("bob",2001);
+mysql> select * from  v1  where name="bob";
+50:
+> select * from  db9.user  where name="bob";
+> update  db9.user  set   uid=3001 where name="bob";
+
+client:
+> select * from  v1  where name="bob";
+
+50:
+> delete from db9.user where name="bob";
+
+client:
+> select * from  v1  where name="bob";
+
++++++++++++++++++++++++++++++++
+>use  db9;
+> drop view   v1;
+> drop  view  v2;
+> show tables;
+> select  *  from user;
+> system  ls  /var/lib/mysql/db9
+
++++++++++++++++++++++++++++++++++++
+use db9;
+create  table  t1  select name,uid,gid from user limit 5;
+
+create  table  t2  select name,uid,shell from user limit 10;
+
+
+select * from  t1 left join t2  
+on  
+t1.name=t2.name  and  t1.uid=t2.uid;
+
++++++++++++++++++++++++++++++
+create  view  v3   
+as 
+select 
+a.name as onename,
+a.uid as oneuid,
+a.gid as onegid,
+b.name as towname,
+b.uid as towuid,
+b.shell as twoshell
+
+from  t1 a left join t2 b
+on
+a.name=b.name  and  a.uid=b.uid;
+
+> desc v3;
+> select  * from v3;
+
+++++++++++++++++++++++++++++++++++++++++++++
+
+create view  v5(aname,auid,agid,bname,buid,bshell) 
+as  
+select  * from  t1  left join t2 
+on
+t1.name=t2.name  and  t1.uid=t2.uid;
+
+> desc v5;
+> select  * from v5;
+
+++++++++++++++++++++++++++++++++++++++++
+mysql> show tables;
+mysql> desc  v5;
+mysql> select  * from v5;
+
+mysql> create view v5  as  select  * from user;
+mysql> create  or replace view v5  as  select  * from user;
+
+mysql> desc v5;
+mysql> select  * from v5;
++++++++++++++++++++++++++++++++++
+use db9;
+create table user2  
+select name,uid,gid,shell from user where uid>12 and uid<=40;
+
+mysql> select  * from user2;
+
+create  view v6 
+as 
+select name,uid from user2 where uid<=29
+with check option;
+
+
+mysql> create view  v7  as
+    -> select name,uid from user where uid>=20 and uid<=100;
+
+mysql> create view  v8 as
+    -> select  * from v7 where uid >=30
+    -> with check option;
+
+select  * from v7;
+select  * from v8;
+mysql> update  v8  set  uid=19  where name="nobody";
+
+
+mysql> update v8  set  uid=101 where name="nobody";
+
+update v8  set uid=41 where name="nobody";
+
+mysql> select  * from v8 where name="nobody";
+mysql> select  * from v7 where name="nobody";
+
+++++++++++++++++++++++++++++++++++++++++++
+create  view  v9  
+as
+select  * from v7  where uid>=30
+with local  check option;
+
+select  * from v9;
+
+ql> update v9
+    -> set
+    -> uid=17
+    -> where name="tss";
+ERROR 1369 (HY000): CHECK OPTION failed 'db9.v9'
+mysql> 
+mysql> update v9 set uid=31 where name="tss";
+Query OK, 1 row affected (0.00 sec)
+
+
+mysql> update v9 set uid=200 where name="nobody";
+mysql> select  * from v9 where name="nobody";
+mysql> select  * from v7 where name="nobody";
+mysql> select  * from user where name="nobody";
+
+++++++++++++++++++++++++++++++++++++++++++++++++++
+use db9;
+delimiter  //
+create procedure p1()
+begin
+     create  database db99;
+     create  table db99.a(id int);
+end
+//
+delimiter ;
+
+call  p1()
+
+show databases;
+desc  db99.a;
+++++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p3()
+begin
+     select count(*) from db9.user;
+end
+//
+delimiter ;
+
+call p3();
+call p3();
+++++++++++++++++++++++++++++++++++++++++
+
+drop  procedure p1;
+call p1();
+
++++++++++++++++++++++++++++++++++++++++++
+mysql> desc mysql.proc;
+
+
+mysql> select db,name,type,body 
+from mysql.proc 
+where name="p1"\G;
+
++++++++++++++++++++++++++++++++++++
+drop  procedure if exists p1;
+
+delimiter  //
+create procedure p1()
+begin
+    select count(name) from db9.user where shell="/bin/bash";
+end
+//
+delimiter ;
+
+call p1();
++++++++++++++++++++++++++++++++++++++++++
+> show session variables; 
+
+> show global variables;
+> show global variables like "%hostname%";
+> select  @@hostname;
+
+> set @x=101;
+> select @x;
+
+delimiter  //
+create procedure p5()
+begin
+   declare  x int;
+   set x=999;
+   select x;
+end
+//
+delimiter ;
+call  p5();
+++++++++++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p6()
+begin
+    declare  x int;
+    select count(name) into x from db9.user where uid<=10;
+    select x;
+end
+//
+delimiter ;
+call  p6();
+++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p7(in x char(15),in y int)
+begin
+     select name from db9.user where name=x and uid=y;
+end
+//
+delimiter ;
+
+call p7("bob",1);
+call p7("root",0);
+
+set  @name="root"; set @uid=0;
+call  p7(@name,@uid)
++++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p8(in x char(20),out y int)
+begin
+     set y=0;
+     select y;
+     select count(name) into y from db9.user where shell=x;
+     select y;
+end
+//
+delimiter ;
+
+call p8("/bin/bash");
+call p8("/bin/bash",@z);
+
+++++++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p9(in x char(20),inout y int)
+begin
+     select y;
+     set y=0;
+     select y;
+     select count(name) into y from db9.user where shell=x;
+     select y;
+end
+//
+delimiter ;
+
+call p9("/sbin/nologin");
+set @z=3;
+call p9("/sbin/nologin",@z);
++++++++++++++++++++++++++++
+mysql> set @x=1; set @y=2;
+
+mysql> set @z=@x+@y;
+mysql> select  @z;
+
+mysql> set @z=1+1;
+mysql> select  @z;
++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p10(in x int)
+begin
+    if x  is null then   
+        select * from db9.user where name="root";
+    else
+        select * from db9.user where uid=x;
+    end if;
+end
+//
+delimiter ;
+call  p10(11);
+call  p10(7);
+select @z;
+call  p10(@z);
+++++++++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p11(in y int)
+begin
+     declare x int default 1;
+     if y is null then
+       select  * from db9.user where id=1;
+     end if;
+     while x <= y do
+           select * from db9.user where id=x;
+           set  x= x+1;   
+     end while;
+end
+//
+delimiter ;
+
+select @z;
+call p11(@z);
+call  p11(3)
+call  p11(5);
++++++++++++++++++++++++++++++++
+delimiter  //
+create procedure p1()
+begin
+end
+//
+delimiter ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
