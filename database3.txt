@@ -1,0 +1,313 @@
+一、MySQL存储引擎         
+transaction 事务 
+
+1.1 mysql服务软件体系结构（8个功能模块）
+管理工具：  安装服务软件后提供的命令
+连接池(connnection pool)  ：  响应客户端连接
+sql接口(sql interface)  ： 负责把sql命令传递给mysql服务
+分析器(parser)：   检查执行的sql命令（语法错误 访问权限 。。。）
+优化器 (optimizer)：  自动对执行的sql命令做优化
+查询缓存(caches&buffers)：MySQL服务启动时，从主机的物理内存获取空间，存储曾经查询过的数据。
+存储引擎： 处理表的处理器 (mysql5.5/5.6 默认innodb)
+文件系统： 存储数据的硬盘
+
+transaction 事务:          一次sql操作从开始建立连接,执行各种sql命令到断开连接的过程.
+               事务日志文件:  /var/lib/mysql/{ibdata1,ib_logfile0,ib_logfile1}
+               事务回滚:      事务执行时任意一步操作没有成功,会恢复之前的所有操作.
+           
+事务的特性(ACID):
+Atomic:原子性----------------->事务的整个操作是一个整体,要么全部成功,要么全部失败
+Consistency:一致性-------->事务操作的前后,表中的记录没有变化
+Isolation:隔离性------------>事务操作是相互隔离不受影响的
+Durability:持久性---------->数据提交不可改变,永久改变表数据             
+
+show status like "%lock%"            //查看锁状态 %通配符
+show variables like "autocommit";    //查看数据提交状态
+set autocommit=off;                  //关闭自动提交
+rollback;                            //数据回滚
+commit;                              //提交数据                  
+
+修改数据库默认引擎:vim /etc/my.cnf   数据文件 /var/lib/mysql
+                     [mysqld]
+          default-storage-engine=myisam(引擎名)   //添加一行
+                 重启服务: systemctl restart mysqld
+
+ innodb特点:支持事务,事务回滚,外键
+              支持行级锁定                      //写操作多的时候使用
+相关表文件: .frm 存储表结构    /var/lib/mysql/表名
+         .ibd  表数据和索引信息
+
+ myisam特点:不支持事务,事务回滚,外键
+               支持表级锁                      //读操作多的时候使用
+相关表文件: .frm  表结构         desc 表名;
+          .myd  存储表数据     delect * from 表名;
+          .myi  存储索引信息   index
+  
+  查看数据库支持的引擎         //show engines;
+  查看表使用的引擎             //show create table 表名;
+  建表是指定存储引擎          //create table 表名(...)engine=引擎名;
+  已建表指定存储引擎          //alter table 表名  engine-引擎名;
+  显示数据状态中包含lock    //show status like "%lock%"
+  
+ 
+锁粒度(锁的范围):     
+        表级锁-------->一次直接对整张表进行枷锁    myisam
+        行级锁-------->之锁定某一行                 innodb
+        页级锁-------->对整个页面进行加锁(mysql管理数据的基本存储单位,内存存储一页为1M)
+锁类型
+      读锁(共享锁)          :支持并发读
+      写锁(互斥锁 排它锁)  :独占锁,上锁期间其他线程不能读表或写表   
+
+===============数据管理===================
+
+mysql>system cp /etc/passwd /var/lib/mysql-files/  //在登录数据库下执行系统命令
+修改默认路径/var/lib/mysql-files
+vim /etc/my.cnf
+    [mysql]
+secure_file_priv="新路径"
+
+重启服务systemctl restart mysqld
+建表  create table user( 
+              name char(30), 
+             passwd char(1), 
+                 uid int(2),
+                 gid int(2), 
+          comment char(150), 
+          homedir char(150), 
+             shell char(30), 
+              index(name) );
+导入数据 load data infile "/var/lib/mysql-files/passwd" 
+                 into table db3.user 
+                 fields terminated by ":"
+                 lines terminated by "\n";
+导出数据  select name,uid,shell from user into outfile "/var/lib/mysql-files/user.txt";
+        select * from user into outfile "/var/lib/mysql-files/user1.txt" fields terminated by "#";
+
+
+增加表记录:   alter table user add id int(2) primary key auto_increment first; //在表中增加一列序号
+              insert into user(name,uid) values("lucy",2001);
+            alter table user drop id;             //删除字段
+查询表记录   select 字段1,字段2,字段3,..... from 表名;
+           select * from 表名 where id<=10(条件表达式);
+
+更新表记录      update 表名 set 字段名1=值,字段名2=值,......;
+           update user set passwd="x",gid=1088 where id=1;
+
+删出表记录   delete from 表名 where 条件表达式;
+              delete from 表名                    // 删除表中所有记录
+
+基本匹配条件和高级匹配条件应用于 select\update\dalete操作
+select name from user where id=7;
+select gid,uid from user where uid=gid;
+select * from  user id<=10;
+select * from user id!=uid;
+                  
+select name,uid from user where uid is not null; 匹配字段不是空值
+select * from user where uid>=100 and uid<=500;  匹配多个条件都满足and
+select name,uid from user where id=7 or uid=115; 匹配多个条件满足其一or
+
+范围内匹配/去重显示
+in(值列表)  
+not in (值列表) 不在...里  
+between 数字1 and        数字2 在....之间
+select name,uid from user where name in ("bob","mysql","adm","zhangsan");范围内匹配
+distinct 字段名 去重显示
+select distinct shell from user;
+
+=============================================================
+模糊匹配
+名字中有a的-------> select name from user where name like '%a%';  // %匹配0~N个
+4个字符-------------> select name from user where name like '____';  // _匹配单个字符
+4个及以上----------> select name from user where name like '%____%' ;  
+
+正则匹配 
+格式---------------> where 字段名 regexp '正则'
+只有4个字符 select name,uid from user where name regexp '^....$';
+包含4个字符 select name,uid from user where name regexp '....';
+包含连续4个数字 select name from user where name regexp '[0-9]{4}';
+
+四则运算
+select name,age,2018-age from user where name='root'; 显示2018减去age的值
+select name,uid from user where uid % 2 = 0;          显示uid为偶数
+select name,uid,gid,(uid+gid)/2 pjz from user where name="root"; 取gid和uid的平均值放入 pjz字段中 pjz字段只是临时的
+让表中age字段值加上1 update user set age=age+1;
+
+聚集函数
+select count(name) from user; //统计name字段值有多少个
+avg(字段名) 平均值
+sum(字段名)  和
+min(字段名)   最小值
+max(字段名)   最大值
+count(字段名)  数值个数
+
+查询结果排序
+select * from user order by name desc 降序排列 (默认asc升序)  
+sql查询 order by 字段名;
+
+查询结果分组
+select shell from user group by shell;
+select 字段名1 from 表 group by 字段名1;
+
+结果查询过滤
+sql查询  having 条件表达式;   将查询结果放到内存里,节约资源
+mysql> select shell from user group by shell having shell="/sbin/nologin";
+sql查询  where  条件表达式;   每次都要重新一行一行查找
+
+限制查询结果显示行数
+
+sql查询 limit n; //显示查询结果前n行 显示1到n行
+sql查询 limit n,m  //从n+1行开始显示,共 第"n+1"到"n+m"行
+select * from user limit 3,5;查询结果第4行开始显示共5行
+
+
+
+
+
+   
+select  * from t1 where id <=10;
+client<-----                                           存储引擎
+-----> 查询缓存  没有   MySQL----->表t1
+	< ---          /var/lib/mysql/studb/t1.*
+                                                   文件系统
+存储引擎的使用：
+查看数据库服务支持的存储引擎？
+mysql> show  engines
+
+修改数据库服务 默认使用的存储引擎？
+
+
+查看服务器上已有的表使用的存储引擎？
+mysql> show  create  table t23;
+
+建表时，指定表使用的存储引擎？
+
+常用存储引擎myisam和 innodb的特点？
+
+myisam的特点
+独享表空间 
+t1.frm(framework)   存储表结构    desc  t1;
+t1.myd    存储表数据    select  * from  t1;
+t1.myi    存储索引信息   index
+锁粒度：支持表锁（把客户端访问的整张表  加锁）
+
+不支持事务、事务回滚 、外键
+
+
+innodb的特点
+a1.frm   存储表结构    desc  a1;
+a1.ibd    存储索引信息+存储表数据
+
+锁粒度： 支持行锁 （只把客户端访问的表中行加锁）
+
+支持事务、事务回滚 、外键
+
+锁：为了并发访问冲突问题。
+
+锁类型：
+读 锁 又称为共享锁  对表执行select 操作时加读锁
+写 锁 又称为排它锁  对表执行insert  update  delete 操作时加
+
+写锁。
+
+工作中，建表时如何决定表使用哪种存储引擎？
+处理写操作多的表适合使用innodb存储引擎。并发访问大
+处理读操作多的表适合使用myisam存储引擎。节省系统资源
+
+事务： 对数据访问时，从连接开始   操作  断开连接过程。
+事务回滚： 操作失败时，恢复之前的所有操作。 
+
+事务的特点:ACID
+
+二、数据导入与导出
+2.1 数据导入： 把系统文件的内容，存储到数据库的表里
+数据导入步骤： 
+1  建表  
+2 导入数据
+把系统用户/etc/passwd信息存储到db3数据库的user表里
+用户名  密码   uid  gid  描述信息  家目录  shell
+
+2.2 自定义导入导出时检索文件的目录。默认目录是 
+
+/var/lib/mysql-files
+
+2.3 数据导出:把表记录存储到系统文件里。
+导出的sql命令的格式？
+
+三、管理表记录 db3.user
+插入表记录  insert  into
+ (值必须与字段类型匹配且不能与字段约束条件冲突)
+
+插入1条记录给所有字段赋值
+插入N条记录给所有字段赋值
+
+插入1条记录给指定字段赋值
+插入N条记录给指定字段赋值
+
+查询表记录  select
+select  字段名列表 from 表名 [ where  条件 ]；
+
+更新记录的字段值  update
+（修改的值也要与字段类型和约束条件匹配）
+update   表名  set   字段名=值，字段名=值  [where  条件]；
+
+
+删除记录 delete
+delete  from  表名 [ where  条件 ]；
+ 
+四、匹配条件： 
+执行select   update  delete操作时都可以加条件。
+
+数值比较
+字段名   符号   值
+
+字符比较
+字段名   符号   "值"
+
+匹配空  
+字段名  is  null
+
+匹配非空  
+字段名 is  not  null
+
+逻辑匹配 （有多个条件）
+逻辑与  and    多个判断条件必须都成立
+
+条件判断   and  条件判断  and 条件判断
+男                       有钱                 颜值
+ 
+逻辑或  or   某个判断条件成立即可
+条件判断   or  条件判断  or 条件判断
+男                       有钱                 颜值
+
+
+逻辑非   ！  not
+
+=
+！=   
+
+is null
+is  not null
+
+（）  提供执行判断的优先级
+
+范围内匹配
+字段   in  （值列表）
+字段 not  in  （值列表）
+字段  between 数字1  and  数字2
+
+distinct 字段名  不显示字段的重复值
+查询时，相同的字段值只显示第1次出现的
+
+模糊查询like
+字段名 like  '表达式'；
+%  表示 0 个或 多个字符
+_    表示一个字符
+
+正则匹配
+^  $   .  *  [ ]
+字段名  regexp  '正则表达式'；
+
+四则计算   +  -  *  /   %
+字段类型是数值类型 
+字段名  符号  字段名
+字段名  符号  数字
