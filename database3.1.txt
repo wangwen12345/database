@@ -1,0 +1,291 @@
+volatile 易变的,不稳定的
+
+NoSQL   共5天    Redis   MongoDB
+                      3天         2天
+
+非关系型数据库适用于 -------------->微博,微信
+关系型数据(RDBMS)库适用于------->各种账号的注册
+
+
+
+
+
+Redis:
+Remote Dictionary Server(远程字典服务器)
+是一款高性能的(key/values)分布式内存数据库
+支持数据持久化,可以把内存里的数据保存到硬盘中
+支持list hash set zset数据类型
+支持master-slave模式数据备份
+
+搭建Redis数据库服务器
+Redis数据库服务基本使用
+配置文件的常用配置项
+部署Redis集群  ***
+Redis主从同步
+Redis持久化 AOF/RDB  
+
+MongoDB:
+搭建服务器
+基本使用
+数据备份与恢复
+数据导入、导出
+文档管理
+++++++++++++++++++++++++++++++++++++
+NoSQL_day01  
+搭建Redis数据库服务器
+部署网站架构LAMP支持Redis数据库服务
+
+Redis介绍： 分布式内存存储服务器 并支持数据的持久化和多种数据类型。
+
+搭建Redis数据库服务器 192.168.4.51
+装包
+]# rpm  -q gcc  gcc-c++
+]# yum  -y  install    gcc  gcc-c++
+  462  tar -zxvf redis-4.0.8.tar.gz 
+  463  cd redis-4.0.8/
+  464  ls
+  465  make
+  466  make install
+
+redis-4.0.8]# cd utils/
+utils]# ./install_server.sh
+[root@host51 utils]# ./install_server.sh //初始化
+Welcome to the redis service installer
+This script will help you easily set up a running redis server
+
+Please select the redis port for this instance: [6379] 
+Selecting default: 6379
+Please select the redis config file name [/etc/redis/6379.conf]  //redis配置文件
+Selected default - /etc/redis/6379.conf
+Please select the redis log file name [/var/log/redis_6379.log]  //日志文件名称和存储位置
+Selected default - /var/log/redis_6379.log
+Please select the data directory for this instance [/var/lib/redis/6379] //数据库目录
+Selected default - /var/lib/redis/6379
+Please select the redis executable path [/usr/local/bin/redis-server] //启动程序文件
+Selected config:
+Port           : 6379
+Config file    : /etc/redis/6379.conf
+Log file       : /var/log/redis_6379.log
+Data dir       : /var/lib/redis/6379
+Executable     : /usr/local/bin/redis-server
+Cli Executable : /usr/local/bin/redis-cli
+Is this ok? Then press ENTER to go on or Ctrl-C to abort.
+Copied /tmp/6379.conf => /etc/init.d/redis_6379
+Installing service...
+Successfully added to chkconfig!
+Successfully added to runlevels 345!
+Starting Redis server...
+Installation successful!
+
+
+
+修改配置文件  (不编辑 按照默认配置运行)
+Vim  /etc/redis/6379.conf
+启动服务 做完初始化配置后 ，自动启动服务
+[root@host51 utils]# netstat  -utnlp  | grep  :6379
+tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      29156/redis-server  
+
+查看服务信息
+]# netstat  -utnlp  | grep  :6379
+]#  ps  -C redis-server
+]# /etc/init.d/redis_6379  status
+Redis is running (29156)
+
+]# /etc/init.d/redis_6379  status|start|stop
+
+访问服务(默认只能本机连接)
+[root@host51 utils]# redis-cli
+127.0.0.1:6379> exit
+
+修改服务使用的ip地址和端口号
+]# /etc/init.d/redis_6379 stop
+]# vim /etc/redis/6379.conf
+70 bind  192.168.4.51 
+93 port   6351
+501 requirepass 123456 
+:wq
+]# /etc/init.d/redis_6379 start
+
+]# redis-cli   -h  192.168.4.51  -p  6351
+192.168.4.51:6351> 
+
+修改服务使用的ip地址和端口号停止服务的方法 1
+]# redis-cli   -h 192.168.4.51   -p 6351   shutdown
+
+修改服务使用的ip地址和端口号停止服务的方法2
+]# vim /etc/init.d/redis_6379 修改脚本的配置 
+43       $CLIEXEC -h 192.168.4.51  -p 6351 shutdown
+:wq
+
+]#/etc/init.d/redis_6379  start
+]#/etc/init.d/redis_6379  stop
+
+向redis服务存取数据的常用命令
+[root@host50 ~]# redis-cli  -h 192.168.4.51 -p 6351
+192.168.4.51:6351> set name bob //存储变量
+192.168.4.51:6351> get name     //获取变量
+192.168.4.51:6351> keys *     //列出所有变量
+192.168.4.51:6351> set age 18
+192.168.4.51:6351> keys *
+192.168.4.51:6351> select   3  //切换库(0-15共16个库)
+192.168.4.51:6351> select   0  //默认库未0
+192.168.4.51:6351> keys *
+192.168.4.51:6351> keys a?   //列出变量名以a开头共2个字符
+192.168.4.51:6351> keys a??  //列出变量名以a开头共3个字符
+192.168.4.51:6351> EXISTS school   //测试变量是否存在
+192.168.4.51:6351> EXISTS name
+192.168.4.51:6351> ttl  age
+192.168.4.51:6351> EXPIRE age 10  //设置变量有效期 
+192.168.4.51:6351> ttl  age       //查看变量的有效期
+192.168.4.51:6351> type name      //查看变量类型 ,默认都是字符类型string
+192.168.4.51:6351> move   name  1 //移动变量
+> flushall  删除所有库里数据
+> flushdb   当前所在库的所有数据
+> save      立刻把内存的数据写进硬盘
+> shutdown  关闭服务
+
+配置文件常用参数说明？
+port 6350               //端口
+bind 192.168.4.50       //服务的IP地址  改完地址和端口需要重启服务,redis-cli -h 192.168.4.50 -p 6350
+tcp-backlog 511         //tcp连接的总数(包括已经建立的和正在建立的)
+timeout 0               //连接超时时间 0代表未定义超时时间/
+tcp-keepalive 300       //长连接时间   300代表检测tcp连接的频率
+daemonize yes           //守护进程方式运行
+databases 16            //数据库个数
+logfile /var/log/redis_6379.log //日志文件
+maxclients 10000        //并发连接数
+dir /var/lib/redis/6379 //数据库目录
+
+内存清除策略(默认noeviction 永不删除)
+volatile-lru           //最近最少使用(针对设置了ttl的key)
+allkey-lru             //删除最少使用的key
+volatile-random        //在设置了ttl 的key中随机移除
+allkeys-random         //随机移除key
+volatile-ttl(minor ttl)//移除最近过期的key
+noeviction             //不删除,写满报错 
+================================================
+内存管理
+maxmemory <bytes>               //最大内存
+maxmemory-policy noeviction     //第一使用策略
+maxmemory-samples 5             //选取模板数据的个数(针对ttl和lru策略) 
+================================================
+设置连接密码
+501行  quirepass 123456
+redis-cli -h 192.168.4.50 -p 6350 -a 123456:wq 
+================================================
+
+二 、 LAMP或LNMP+Redis
+2.1 部署LAMP 
+[root@host50 ~]# rpm -q httpd php  php-mysql
+httpd-2.4.6-67.el7.x86_64
+php-5.4.16-42.el7.x86_64
+php-mysql-5.4.16-42.el7.x86_64
+[root@host50 ~]# rpm -qa  | grep -i  mysql
+
+]# systemctl  start httpd ; systemctl  enable httpd
+]# systemctl  start mysqld ; systemctl  enable mysqld
+~]# mysql -uroot -p123456
+mysql>
+
+LNMP:
+安装源码nginx
+  405  rpm -q gcc  gcc-c++  pcre-devel  zlib-devel
+  406  useradd nginx
+
+  410  ./configure --prefix=/usr/local/nginx  --user=nginx --group=nginx 
+
+  412  make
+  413  make install
+
+  415  ls /usr/local/nginx/
+[root@host51 nginx-1.12.2]# netstat -utnlp  | grep :80
+[root@host51 nginx-1.12.2]# /usr/local/nginx/sbin/nginx   
+ln -s /usr/local/nginx/sbin /sbin
+/usr/local/nginx/sbin/nginx -t   //检测配置文件是否有误
+[root@host51 nginx-1.12.2]# netstat -utnlp  | grep :80
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3130/nginx: master  
+[root@host51 nginx-1.12.2]# echo 234 > /usr/local/nginx/html/a.html
+[root@host51 nginx-1.12.2]# curl http://localhost/a.html
+234
+[root@host51 nginx-1.12.2]#
+
+安装fastcgi
+]# rpm -ivh php-fpm-5.4.16-42.el7.x86_64.rpm
+]# systemctl  start php-fpm.service 
+]# systemctl  enable php-fpm.service 
+]# netstat -utnlp  | grep :9000
+
+vim   /usr/local/nginx/conf/nginx.conf
+ 65         location ~ \.php$ {
+ 66             root           html;
+ 67             fastcgi_pass   127.0.0.1:9000;
+ 68             fastcgi_index  index.php;
+ 69         #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+ 70         #    include        fastcgi_params;
+ 71             include        fastcgi.conf;
+ 72         }
+:wq
+
+[root@host51 lnmp]# /usr/local/nginx/sbin/nginx  -s stop
+[root@host51 lnmp]# /usr/local/nginx/sbin/nginx
+[root@host51 lnmp]# vim /usr/local/nginx/html/test.php
+[root@host51 lnmp]# curl http://localhost/test.php
+hello boy
+
+2.2 配置 PHP支持Redis服务
+安装php扩展
+yum -y install autoconf automake
+yum -y install php-devel-5.4.16-42.el7.x86_64.rpm 
+tar -xf php-redis-2.2.4.tar.gz 
+cd phpredis-2.2.4/
+/usr/bin/phpize
+./configure --with-php-config=/usr/bin/php-config
+make && make install
+
+vim /etc/php.ini
+728行: extension_dir = "/usr/lib64/php/modules/"  指定模块路径
+730行: extension = "redis.so"
+
+systemctl restart php-fpm
+php -m |grep redis
+
+编写php代码,把数据存储到本机redis数据服务器
+vim /usr/local/nginx/html/redis.php
+<?php
+$redis = new redis();
+$redis->connect('127.0.0.1',6379);
+$redis->set('school','tarena');
+echo $redis->get('school');
+?>
+
+配置lamp网站平台,把数据存储在本机192.168.4.50的redis服务器里且同时存储其他网站的数据
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
