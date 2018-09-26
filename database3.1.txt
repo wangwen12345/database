@@ -1,46 +1,46 @@
-volatile Ò×±äµÄ,²»ÎÈ¶¨µÄ
+volatile æ˜“å˜çš„,ä¸ç¨³å®šçš„
 
-NoSQL   ¹²5Ìì    Redis   MongoDB
-                      3Ìì         2Ìì
-¹ØÏµĞÍÊı¾İ(RDBMS)¿âÊÊÓÃÓÚ------->¸÷ÖÖÕËºÅµÄ×¢²á
+NoSQL   å…±5å¤©    Redis   MongoDB
+                      3å¤©         2å¤©
+å…³ç³»å‹æ•°æ®(RDBMS)åº“é€‚ç”¨äº------->å„ç§è´¦å·çš„æ³¨å†Œ
 
 
-·Ç¹ØÏµĞÍÊı¾İ¿âÊÊÓÃÓÚ -------------->Î¢²©,Î¢ĞÅ
+éå…³ç³»å‹æ•°æ®åº“é€‚ç”¨äº -------------->å¾®åš,å¾®ä¿¡
 redis mongodb memcached
-·ºÖ¸·Ç¹ØÏµĞÍÊı¾İ¿â
-²»ĞèÒªÔ¤ÏÈ¶¨ÒåÊı¾İ´æ´¢½á¹¹
-±íµÄÃ¿Ìõ¼ÇÂ¼¶¼¿ÉÒÔÓĞ²»Í¬µÄÀàĞÍºÍ½á¹¹
+æ³›æŒ‡éå…³ç³»å‹æ•°æ®åº“
+ä¸éœ€è¦é¢„å…ˆå®šä¹‰æ•°æ®å­˜å‚¨ç»“æ„
+è¡¨çš„æ¯æ¡è®°å½•éƒ½å¯ä»¥æœ‰ä¸åŒçš„ç±»å‹å’Œç»“æ„
 
 
 Redis:
-Remote Dictionary Server(Ô¶³Ì×Öµä·şÎñÆ÷)
-ÊÇÒ»¿î¸ßĞÔÄÜµÄ(key/values)·Ö²¼Ê½ÄÚ´æÊı¾İ¿â
-Ö§³ÖÊı¾İ³Ö¾Ã»¯,¿ÉÒÔ°ÑÄÚ´æÀïµÄÊı¾İ±£´æµ½Ó²ÅÌÖĞ
-Ö§³Ölist hash set zsetÊı¾İÀàĞÍ
-Ö§³Ömaster-slaveÄ£Ê½Êı¾İ±¸·İ
+Remote Dictionary Server(è¿œç¨‹å­—å…¸æœåŠ¡å™¨)
+æ˜¯ä¸€æ¬¾é«˜æ€§èƒ½çš„(key/values)åˆ†å¸ƒå¼å†…å­˜æ•°æ®åº“
+æ”¯æŒæ•°æ®æŒä¹…åŒ–,å¯ä»¥æŠŠå†…å­˜é‡Œçš„æ•°æ®ä¿å­˜åˆ°ç¡¬ç›˜ä¸­
+æ”¯æŒlist hash set zsetæ•°æ®ç±»å‹
+æ”¯æŒmaster-slaveæ¨¡å¼æ•°æ®å¤‡ä»½
 
-´î½¨RedisÊı¾İ¿â·şÎñÆ÷
-RedisÊı¾İ¿â·şÎñ»ù±¾Ê¹ÓÃ
-ÅäÖÃÎÄ¼şµÄ³£ÓÃÅäÖÃÏî
-²¿ÊğRedis¼¯Èº  ***
-RedisÖ÷´ÓÍ¬²½
-Redis³Ö¾Ã»¯ AOF/RDB  
+æ­å»ºRedisæ•°æ®åº“æœåŠ¡å™¨
+Redisæ•°æ®åº“æœåŠ¡åŸºæœ¬ä½¿ç”¨
+é…ç½®æ–‡ä»¶çš„å¸¸ç”¨é…ç½®é¡¹
+éƒ¨ç½²Redisé›†ç¾¤  ***
+Redisä¸»ä»åŒæ­¥
+RedisæŒä¹…åŒ– AOF/RDB  
 
 MongoDB:
-´î½¨·şÎñÆ÷
-»ù±¾Ê¹ÓÃ
-Êı¾İ±¸·İÓë»Ö¸´
-Êı¾İµ¼Èë¡¢µ¼³ö
-ÎÄµµ¹ÜÀí
+æ­å»ºæœåŠ¡å™¨
+åŸºæœ¬ä½¿ç”¨
+æ•°æ®å¤‡ä»½ä¸æ¢å¤
+æ•°æ®å¯¼å…¥ã€å¯¼å‡º
+æ–‡æ¡£ç®¡ç†
 ++++++++++++++++++++++++++++++++++++
 NoSQL_day01  
-´î½¨RedisÊı¾İ¿â·şÎñÆ÷
-²¿ÊğÍøÕ¾¼Ü¹¹LAMPÖ§³ÖRedisÊı¾İ¿â·şÎñ
+æ­å»ºRedisæ•°æ®åº“æœåŠ¡å™¨
+éƒ¨ç½²ç½‘ç«™æ¶æ„LAMPæ”¯æŒRedisæ•°æ®åº“æœåŠ¡
 
-Redis½éÉÜ£º ·Ö²¼Ê½ÄÚ´æ´æ´¢·şÎñÆ÷ ²¢Ö§³ÖÊı¾İµÄ³Ö¾Ã»¯ºÍ¶àÖÖÊı¾İÀàĞÍ¡£
+Redisä»‹ç»ï¼š åˆ†å¸ƒå¼å†…å­˜å­˜å‚¨æœåŠ¡å™¨ å¹¶æ”¯æŒæ•°æ®çš„æŒä¹…åŒ–å’Œå¤šç§æ•°æ®ç±»å‹ã€‚
 
-´î½¨RedisÊı¾İ¿â·şÎñÆ÷ 192.168.4.51
-×°°ü
+æ­å»ºRedisæ•°æ®åº“æœåŠ¡å™¨ 192.168.4.51
+è£…åŒ…
 ]# rpm  -q gcc  gcc-c++
 ]# yum  -y  install    gcc  gcc-c++
   462  tar -zxvf redis-4.0.8.tar.gz 
@@ -51,19 +51,19 @@ Redis½éÉÜ£º ·Ö²¼Ê½ÄÚ´æ´æ´¢·şÎñÆ÷ ²¢Ö§³ÖÊı¾İµÄ³Ö¾Ã»¯ºÍ¶àÖÖÊı¾İÀàĞÍ¡£
 
 redis-4.0.8]# cd utils/
 utils]# ./install_server.sh
-[root@host51 utils]# ./install_server.sh //³õÊ¼»¯
+[root@host51 utils]# ./install_server.sh //åˆå§‹åŒ–
 Welcome to the redis service installer
 This script will help you easily set up a running redis server
 
 Please select the redis port for this instance: [6379] 
 Selecting default: 6379
-Please select the redis config file name [/etc/redis/6379.conf]  //redisÅäÖÃÎÄ¼ş
+Please select the redis config file name [/etc/redis/6379.conf]  //redisé…ç½®æ–‡ä»¶
 Selected default - /etc/redis/6379.conf
-Please select the redis log file name [/var/log/redis_6379.log]  //ÈÕÖ¾ÎÄ¼şÃû³ÆºÍ´æ´¢Î»ÖÃ
+Please select the redis log file name [/var/log/redis_6379.log]  //æ—¥å¿—æ–‡ä»¶åç§°å’Œå­˜å‚¨ä½ç½®
 Selected default - /var/log/redis_6379.log
-Please select the data directory for this instance [/var/lib/redis/6379] //Êı¾İ¿âÄ¿Â¼
+Please select the data directory for this instance [/var/lib/redis/6379] //æ•°æ®åº“ç›®å½•
 Selected default - /var/lib/redis/6379
-Please select the redis executable path [/usr/local/bin/redis-server] //Æô¶¯³ÌĞòÎÄ¼ş
+Please select the redis executable path [/usr/local/bin/redis-server] //å¯åŠ¨ç¨‹åºæ–‡ä»¶
 Selected config:
 Port           : 6379
 Config file    : /etc/redis/6379.conf
@@ -81,13 +81,13 @@ Installation successful!
 
 
 
-ĞŞ¸ÄÅäÖÃÎÄ¼ş  (²»±à¼­ °´ÕÕÄ¬ÈÏÅäÖÃÔËĞĞ)
+ä¿®æ”¹é…ç½®æ–‡ä»¶  (ä¸ç¼–è¾‘ æŒ‰ç…§é»˜è®¤é…ç½®è¿è¡Œ)
 Vim  /etc/redis/6379.conf
-Æô¶¯·şÎñ ×öÍê³õÊ¼»¯ÅäÖÃºó £¬×Ô¶¯Æô¶¯·şÎñ
+å¯åŠ¨æœåŠ¡ åšå®Œåˆå§‹åŒ–é…ç½®å ï¼Œè‡ªåŠ¨å¯åŠ¨æœåŠ¡
 [root@host51 utils]# netstat  -utnlp  | grep  :6379
 tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      29156/redis-server  
 
-²é¿´·şÎñĞÅÏ¢
+æŸ¥çœ‹æœåŠ¡ä¿¡æ¯
 ]# netstat  -utnlp  | grep  :6379
 ]#  ps  -C redis-server
 ]# /etc/init.d/redis_6379  status
@@ -95,11 +95,11 @@ Redis is running (29156)
 
 ]# /etc/init.d/redis_6379  status|start|stop
 
-·ÃÎÊ·şÎñ(Ä¬ÈÏÖ»ÄÜ±¾»úÁ¬½Ó)
+è®¿é—®æœåŠ¡(é»˜è®¤åªèƒ½æœ¬æœºè¿æ¥)
 [root@host51 utils]# redis-cli
 127.0.0.1:6379> exit
 
-ĞŞ¸Ä·şÎñÊ¹ÓÃµÄipµØÖ·ºÍ¶Ë¿ÚºÅ
+ä¿®æ”¹æœåŠ¡ä½¿ç”¨çš„ipåœ°å€å’Œç«¯å£å·
 ]# /etc/init.d/redis_6379 stop
 ]# vim /etc/redis/6379.conf
 70 bind  192.168.4.51 
@@ -111,73 +111,73 @@ Redis is running (29156)
 ]# redis-cli   -h  192.168.4.51  -p  6351
 192.168.4.51:6351> 
 
-ĞŞ¸Ä·şÎñÊ¹ÓÃµÄipµØÖ·ºÍ¶Ë¿ÚºÅÍ£Ö¹·şÎñµÄ·½·¨ 1
+ä¿®æ”¹æœåŠ¡ä½¿ç”¨çš„ipåœ°å€å’Œç«¯å£å·åœæ­¢æœåŠ¡çš„æ–¹æ³• 1
 ]# redis-cli   -h 192.168.4.51   -p 6351   shutdown
 
-ĞŞ¸Ä·şÎñÊ¹ÓÃµÄipµØÖ·ºÍ¶Ë¿ÚºÅÍ£Ö¹·şÎñµÄ·½·¨2
-]# vim /etc/init.d/redis_6379 ĞŞ¸Ä½Å±¾µÄÅäÖÃ 
+ä¿®æ”¹æœåŠ¡ä½¿ç”¨çš„ipåœ°å€å’Œç«¯å£å·åœæ­¢æœåŠ¡çš„æ–¹æ³•2
+]# vim /etc/init.d/redis_6379 ä¿®æ”¹è„šæœ¬çš„é…ç½® 
 43       $CLIEXEC -h 192.168.4.51  -p 6351 shutdown
 :wq
 
 ]#/etc/init.d/redis_6379  start
 ]#/etc/init.d/redis_6379  stop
 
-Ïòredis·şÎñ´æÈ¡Êı¾İµÄ³£ÓÃÃüÁî
+å‘redisæœåŠ¡å­˜å–æ•°æ®çš„å¸¸ç”¨å‘½ä»¤
 [root@host50 ~]# redis-cli  -h 192.168.4.51 -p 6351
-192.168.4.51:6351> set name bob //´æ´¢±äÁ¿
-192.168.4.51:6351> get name     //»ñÈ¡±äÁ¿
-192.168.4.51:6351> keys *     //ÁĞ³öËùÓĞ±äÁ¿
+192.168.4.51:6351> set name bob //å­˜å‚¨å˜é‡
+192.168.4.51:6351> get name     //è·å–å˜é‡
+192.168.4.51:6351> keys *     //åˆ—å‡ºæ‰€æœ‰å˜é‡
 192.168.4.51:6351> set age 18
 192.168.4.51:6351> keys *
-192.168.4.51:6351> select   3  //ÇĞ»»¿â(0-15¹²16¸ö¿â)
-192.168.4.51:6351> select   0  //Ä¬ÈÏ¿âÎª0
+192.168.4.51:6351> select   3  //åˆ‡æ¢åº“(0-15å…±16ä¸ªåº“)
+192.168.4.51:6351> select   0  //é»˜è®¤åº“ä¸º0
 192.168.4.51:6351> keys *
-192.168.4.51:6351> keys a?   //ÁĞ³ö±äÁ¿ÃûÒÔa¿ªÍ·¹²2¸ö×Ö·û
-192.168.4.51:6351> keys a??  //ÁĞ³ö±äÁ¿ÃûÒÔa¿ªÍ·¹²3¸ö×Ö·û
-192.168.4.51:6351> EXISTS school   //²âÊÔ±äÁ¿ÊÇ·ñ´æÔÚ
+192.168.4.51:6351> keys a?   //åˆ—å‡ºå˜é‡åä»¥aå¼€å¤´å…±2ä¸ªå­—ç¬¦
+192.168.4.51:6351> keys a??  //åˆ—å‡ºå˜é‡åä»¥aå¼€å¤´å…±3ä¸ªå­—ç¬¦
+192.168.4.51:6351> EXISTS school   //æµ‹è¯•å˜é‡æ˜¯å¦å­˜åœ¨
 192.168.4.51:6351> EXISTS name
 192.168.4.51:6351> ttl  age
-192.168.4.51:6351> EXPIRE age 10  //ÉèÖÃ±äÁ¿ÓĞĞ§ÆÚ 
-192.168.4.51:6351> ttl  age       //²é¿´±äÁ¿µÄÓĞĞ§ÆÚ
-192.168.4.51:6351> type name      //²é¿´±äÁ¿ÀàĞÍ ,Ä¬ÈÏ¶¼ÊÇ×Ö·ûÀàĞÍstring
-192.168.4.51:6351> move   name  1 //ÒÆ¶¯±äÁ¿µ½ÁíÍâÒ»¸ö¿â
-> flushall  É¾³ıËùÓĞ¿âÀïÊı¾İ
-> flushdb   µ±Ç°ËùÔÚ¿âµÄËùÓĞÊı¾İ
-> save      Á¢¿Ì°ÑÄÚ´æµÄÊı¾İĞ´½øÓ²ÅÌ
-> shutdown  ¹Ø±Õ·şÎñ
+192.168.4.51:6351> EXPIRE age 10  //è®¾ç½®å˜é‡æœ‰æ•ˆæœŸ 
+192.168.4.51:6351> ttl  age       //æŸ¥çœ‹å˜é‡çš„æœ‰æ•ˆæœŸ
+192.168.4.51:6351> type name      //æŸ¥çœ‹å˜é‡ç±»å‹ ,é»˜è®¤éƒ½æ˜¯å­—ç¬¦ç±»å‹string
+192.168.4.51:6351> move   name  1 //ç§»åŠ¨å˜é‡åˆ°å¦å¤–ä¸€ä¸ªåº“
+> flushall  åˆ é™¤æ‰€æœ‰åº“é‡Œæ•°æ®
+> flushdb   å½“å‰æ‰€åœ¨åº“çš„æ‰€æœ‰æ•°æ®
+> save      ç«‹åˆ»æŠŠå†…å­˜çš„æ•°æ®å†™è¿›ç¡¬ç›˜
+> shutdown  å…³é—­æœåŠ¡
 
-ÅäÖÃÎÄ¼ş³£ÓÃ²ÎÊıËµÃ÷£¿
-port 6350               //¶Ë¿Ú
-bind 192.168.4.50       //·şÎñµÄIPµØÖ·  ¸ÄÍêµØÖ·ºÍ¶Ë¿ÚĞèÒªÖØÆô·şÎñ,redis-cli -h 192.168.4.50 -p 6350
-tcp-backlog 511         //tcpÁ¬½ÓµÄ×ÜÊı(°üÀ¨ÒÑ¾­½¨Á¢µÄºÍÕıÔÚ½¨Á¢µÄ)
-timeout 0               //Á¬½Ó³¬Ê±Ê±¼ä 0´ú±íÎ´¶¨Òå³¬Ê±Ê±¼ä/
-tcp-keepalive 300       //³¤Á¬½ÓÊ±¼ä   300´ú±í¼ì²âtcpÁ¬½ÓµÄÆµÂÊ
-daemonize yes           //ÊØ»¤½ø³Ì·½Ê½ÔËĞĞ
-databases 16            //Êı¾İ¿â¸öÊı
-logfile /var/log/redis_6379.log //ÈÕÖ¾ÎÄ¼ş
-maxclients 10000        //²¢·¢Á¬½ÓÊı
-dir /var/lib/redis/6379 //Êı¾İ¿âÄ¿Â¼
+é…ç½®æ–‡ä»¶å¸¸ç”¨å‚æ•°è¯´æ˜ï¼Ÿ
+port 6350               //ç«¯å£
+bind 192.168.4.50       //æœåŠ¡çš„IPåœ°å€  æ”¹å®Œåœ°å€å’Œç«¯å£éœ€è¦é‡å¯æœåŠ¡,redis-cli -h 192.168.4.50 -p 6350
+tcp-backlog 511         //tcpè¿æ¥çš„æ€»æ•°(åŒ…æ‹¬å·²ç»å»ºç«‹çš„å’Œæ­£åœ¨å»ºç«‹çš„)
+timeout 0               //è¿æ¥è¶…æ—¶æ—¶é—´ 0ä»£è¡¨æœªå®šä¹‰è¶…æ—¶æ—¶é—´/
+tcp-keepalive 300       //é•¿è¿æ¥æ—¶é—´   300ä»£è¡¨æ£€æµ‹tcpè¿æ¥çš„é¢‘ç‡
+daemonize yes           //å®ˆæŠ¤è¿›ç¨‹æ–¹å¼è¿è¡Œ
+databases 16            //æ•°æ®åº“ä¸ªæ•°
+logfile /var/log/redis_6379.log //æ—¥å¿—æ–‡ä»¶
+maxclients 10000        //å¹¶å‘è¿æ¥æ•°
+dir /var/lib/redis/6379 //æ•°æ®åº“ç›®å½•
 
-ÄÚ´æÇå³ı²ßÂÔ(Ä¬ÈÏnoeviction ÓÀ²»É¾³ı)
-volatile-lru           //×î½ü×îÉÙÊ¹ÓÃ(Õë¶ÔÉèÖÃÁËttlµÄkey)
-allkey-lru             //É¾³ı×îÉÙÊ¹ÓÃµÄkey
-volatile-random        //ÔÚÉèÖÃÁËttl µÄkeyÖĞËæ»úÒÆ³ı
-allkeys-random         //Ëæ»úÒÆ³ıkey
-volatile-ttl(minor ttl)//ÒÆ³ı×î½ü¹ıÆÚµÄkey
-noeviction             //²»É¾³ı,Ğ´Âú±¨´í 
+å†…å­˜æ¸…é™¤ç­–ç•¥(é»˜è®¤noeviction æ°¸ä¸åˆ é™¤)
+volatile-lru           //æœ€è¿‘æœ€å°‘ä½¿ç”¨(é’ˆå¯¹è®¾ç½®äº†ttlçš„key)
+allkey-lru             //åˆ é™¤æœ€å°‘ä½¿ç”¨çš„key
+volatile-random        //åœ¨è®¾ç½®äº†ttl çš„keyä¸­éšæœºç§»é™¤
+allkeys-random         //éšæœºç§»é™¤key
+volatile-ttl(minor ttl)//ç§»é™¤æœ€è¿‘è¿‡æœŸçš„key
+noeviction             //ä¸åˆ é™¤,å†™æ»¡æŠ¥é”™ 
 ================================================
-ÄÚ´æ¹ÜÀí
-maxmemory <bytes>               //×î´óÄÚ´æ
-maxmemory-policy noeviction     //µÚÒ»Ê¹ÓÃ²ßÂÔ
-maxmemory-samples 5             //Ñ¡È¡Ä£°åÊı¾İµÄ¸öÊı(Õë¶ÔttlºÍlru²ßÂÔ) 
+å†…å­˜ç®¡ç†
+maxmemory <bytes>               //æœ€å¤§å†…å­˜
+maxmemory-policy noeviction     //ç¬¬ä¸€ä½¿ç”¨ç­–ç•¥
+maxmemory-samples 5             //é€‰å–æ¨¡æ¿æ•°æ®çš„ä¸ªæ•°(é’ˆå¯¹ttlå’Œlruç­–ç•¥) 
 ================================================
-ÉèÖÃÁ¬½ÓÃÜÂë
-501ĞĞ  quirepass 123456
+è®¾ç½®è¿æ¥å¯†ç 
+501è¡Œ  quirepass 123456
 redis-cli -h 192.168.4.50 -p 6350 -a 123456:wq 
 ================================================
 
-¶ş ¡¢ LAMP»òLNMP+Redis
-2.1 ²¿ÊğLAMP 
+äºŒ ã€ LAMPæˆ–LNMP+Redis
+2.1 éƒ¨ç½²LAMP 
 [root@host50 ~]# rpm -q httpd php  php-mysql
 httpd-2.4.6-67.el7.x86_64
 php-5.4.16-42.el7.x86_64
@@ -190,7 +190,7 @@ php-mysql-5.4.16-42.el7.x86_64
 mysql>
 
 LNMP:
-°²×°Ô´Âënginx
+å®‰è£…æºç nginx
   405  rpm -q gcc  gcc-c++  pcre-devel  zlib-devel
   406  useradd nginx
 
@@ -203,7 +203,7 @@ LNMP:
 [root@host51 nginx-1.12.2]# netstat -utnlp  | grep :80
 [root@host51 nginx-1.12.2]# /usr/local/nginx/sbin/nginx   
 ln -s /usr/local/nginx/sbin /sbin
-/usr/local/nginx/sbin/nginx -t   //¼ì²âÅäÖÃÎÄ¼şÊÇ·ñÓĞÎó
+/usr/local/nginx/sbin/nginx -t   //æ£€æµ‹é…ç½®æ–‡ä»¶æ˜¯å¦æœ‰è¯¯
 [root@host51 nginx-1.12.2]# netstat -utnlp  | grep :80
 tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3130/nginx: master  
 [root@host51 nginx-1.12.2]# echo 234 > /usr/local/nginx/html/a.html
@@ -211,7 +211,7 @@ tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      
 234
 [root@host51 nginx-1.12.2]#
 
-°²×°fastcgi
+å®‰è£…fastcgi
 ]# rpm -ivh php-fpm-5.4.16-42.el7.x86_64.rpm
 ]# systemctl  start php-fpm.service 
 ]# systemctl  enable php-fpm.service 
@@ -234,8 +234,8 @@ vim   /usr/local/nginx/conf/nginx.conf
 [root@host51 lnmp]# curl http://localhost/test.php
 hello boy
 
-2.2 ÅäÖÃ PHPÖ§³ÖRedis·şÎñ
-°²×°phpÀ©Õ¹
+2.2 é…ç½® PHPæ”¯æŒRedisæœåŠ¡
+å®‰è£…phpæ‰©å±•
 yum -y install autoconf automake
 yum -y install php-devel-5.4.16-42.el7.x86_64.rpm 
 tar -xf php-redis-2.2.4.tar.gz 
@@ -245,13 +245,13 @@ cd phpredis-2.2.4/
 make && make install
 
 vim /etc/php.ini
-728ĞĞ: extension_dir = "/usr/lib64/php/modules/"  Ö¸¶¨Ä£¿éÂ·¾¶
-730ĞĞ: extension = "redis.so"
+728è¡Œ: extension_dir = "/usr/lib64/php/modules/"  æŒ‡å®šæ¨¡å—è·¯å¾„
+730è¡Œ: extension = "redis.so"
 
 systemctl restart php-fpm
 php -m |grep redis
 
-±àĞ´php´úÂë,°ÑÊı¾İ´æ´¢µ½±¾»úredisÊı¾İ·şÎñÆ÷
+ç¼–å†™phpä»£ç ,æŠŠæ•°æ®å­˜å‚¨åˆ°æœ¬æœºredisæ•°æ®æœåŠ¡å™¨
 vim /usr/local/nginx/html/redis.php
 <?php
 $redis = new redis();
@@ -260,7 +260,7 @@ $redis->set('school','tarena');
 echo $redis->get('school');
 ?>
 
-ÅäÖÃlampÍøÕ¾Æ½Ì¨,°ÑÊı¾İ´æ´¢ÔÚ±¾»ú192.168.4.50µÄredis·şÎñÆ÷ÀïÇÒÍ¬Ê±´æ´¢ÆäËûÍøÕ¾µÄÊı¾İ
+é…ç½®lampç½‘ç«™å¹³å°,æŠŠæ•°æ®å­˜å‚¨åœ¨æœ¬æœº192.168.4.50çš„redisæœåŠ¡å™¨é‡Œä¸”åŒæ—¶å­˜å‚¨å…¶ä»–ç½‘ç«™çš„æ•°æ®
 
 
 
