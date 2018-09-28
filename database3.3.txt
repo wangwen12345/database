@@ -1,0 +1,363 @@
+day03
+replication 回答,复制
+ seq -s + 1 100 |bc (1到100的运算)
+redis主从复制  （类似与MySQL服务的主从同步）
+工作原理
+-slave向master发送sync命令
+-master启动后台存盘进程,并收集所有修改数据命令
+-master完成后台存盘后,传送整个数据文件到slave
+-slave接收数据文件,加载到内存中完成首次完成同步
+-后续有新的数据产生时,master继续新的修改命令收集发送给slave,完成同步
+
+缺点
+-网络繁忙,会产生数据同步延时问题
+-系统繁忙,会产生数据同步延时问题
+redis服务持久化方式介绍
+RDB
+AOF
+
+redis 数据类型：
+字符   *
+列表   *
+hash  *
+集合set
+有序集合zset
+++++++++++++++++++++++++++++++++
+redis主从复制  （类似与MySQL服务的主从同步）
+默认redis服务启动后，默认都是主库
+一主一从  把52 配置为51 从库  
+192.168.4.52:6352> SLAVEOF 192.168.4.51 6351
+192.168.4.52:6352> keys  *
+192.168.4.52:6352> info  replication
+
+192.168.4.51:6351> info  replication
+
+一主多从把53 配置为51 从库 
+192.168.4.53:6353> SLAVEOF 192.168.4.51 6351
+192.168.4.53:6353> keys  *
+192.168.4.51:6351> info  replication
+
+主从从
+把53手动切换为主库  > slaveof   no  one    //恢复为主库
+                 > flushall
+
+把53配置为52的从库 > slvaeof  192.168.4.52 6352
+52显示还是从库
+# Replication
+role:slave
+master_host:192.168.4.51
+master_port:6351
+master_link_status:up
+master_last_io_seconds_ago:3
+master_sync_in_progress:0
+slave_repl_offset:1778
+slave_priority:100
+slave_read_only:1
+connected_slaves:1
+slave0:ip=192.168.4.53,port=6353,state=online,offset=1778,lag=1
+master_replid:34589443b3bc665df5a99155b4c0dce47682412f
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:1778
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:1778
+
+
+
+配置命令行配置马上生效 不需要重启服务（一旦重启服务失效）
+> SLAVEOF 主库ip地址 主库端口号
+
+修改配置文件，永久有效，但需要重启服务才能生效。
+]# /etc/init.d/redis_6379 stop
+vim  /etc/redis/6379.conf
+282 slaveof   192.168.4.52  6352
+:wq
+]# /etc/init.d/redis_6379 start
+[root@host53 ~]# redis-cli  -h 192.168.4.53  -p 6353
+192.168.4.53:6353> info replication
+# Replication
+role:slave
+master_host:192.168.4.52
+master_port:6352
+192.168.4.53:6353> slaveof  no one   #手动切换为主库
+
+主库设置连接密码时，从库的配置。
+
+282 slaveof 192.168.4.51 6351
+289 masterauth 123456 (若主机未设密码,这一行 可以忽略)
+
+
+主从同步的哨兵模式
+
+从库：
+]#vim /etc/sentinel.conf
+sentinel monitor host51  192.168.4.51  6351 1
+sentinel auth-pass host51 123456
+:wq
+
+]#redis-sentinel    /etc/sentinel.conf
+
+上午12点之前都不讲课了
+自由练习： 主从复制  和哨兵模式  
+主机 51  52  53  恢复为独立的redis服务器    
+
+===================redis持久化====================
+redis服务持久化方式介绍
+
+RDB是redis数据库文件
+数据持久化方式之一
+按照指定时间间隔,将内存中的数据集快照写入硬盘
+术语叫snapshot
+恢复时,将快照文件直接读入内存
+
+redis服务关于RDB(redis database)文件的配置
+/etc/init.d/redis_6379 stop
+vim /etc/redis/6379.conf
+254 dbfilename  "dump.rdb"   //rdb文件名
+217 #   save ""
+ 219 save 900 1        //900秒内且数据有1次修改
+ 220 save 300 10
+ 221 save 60 10000
+
+手动立刻存盘
+save   //阻塞存盘
+bgsave //不阻塞存盘
+
+rdbcompression yes (默认yes)   //数据压缩
+rdbchecksum    yes (默认yes)   //在存储快照后,使用crc16算法做数据校验
+stop-writes-on-bgsave-error yes  //bgsave出错时
+立即停止写操作
+
+RBD优点
+高性能的持久化实现
+比较适合大规模数据恢复,且对数据完整性要求不是非常高的场合
+RDB缺点
+意外宕机时,最后一次持久化的数据会丢失
+
+
+AOF (append only file)只做追加操作的文件
+-记录redis服务所有写操作
+-不断的将新的写操作,追加到文件的末尾
+-使用cat命令可以查看文件内容
+
+优点
+-可以灵活设置持久化方式,同步持久化appendfsync always或异步持久化appendfsync everysec
+-出现意外宕机时,仅可能丢失1秒的数据
+缺点
+-持久化文件的体积通常大于RDB方式
+-执行fsync策略是的速度可能会比RDB方式慢
+
+AOF记录写操作的方式
+-appendfsync always   //有新写操作立即记录
+-appendfsync everysec //每秒记录一次
+-appendfsync no       //从不记录
+先读aof文件,在读rdb文件
+cat cat appendonly.aof
+*2         //2个字段
+$6       // select 6个字符
+SELECT    
+$1          //0 一个字符
+0          
+
+auto-aof-rewrite-percentage 100  //aof文件大于上次rewrite文件的大小
+auto-aof-rewrite-min-size 64mb   //aof文件大于64mb
+
+
+
+/etc/init.d/redis_6379 stop
+vim /etc/redis/6379.conf
+ 702 # appendfsync always
+ 703 appendfsync everysec
+ 704 # appendfsync no
+673 appendonly   yes
+appendfilename "appendonly.aof"
+:wq
+/etc/init.d/redis_6379 start
+
+================数据类型=================
+string字符串  list列表  hash表
+
+redis 数据类型：
+192.168.4.51:6351> set name tom
+OK
+192.168.4.51:6351> get name
+"tom"
+192.168.4.51:6351> set name yaya NX  (name值不存在赋值)
+(nil)
+192.168.4.51:6351> get name
+"tom"
+192.168.4.51:6351> set name yaya XX  (name值存在赋值)
+OK
+192.168.4.51:6351> get name
+"yaya"
+192.168.4.51:6351> set x 123 ex 20 (20秒过期 px 20 20毫秒过期)
+192.168.4.51:6351> 
+
+192.168.4.51:6351> set  tel  17101088890
+
+192.168.4.51:6351> get tel
+"17101088890"
+
+192.168.4.51:6351> setrange tel 4 ****
+(integer) 11
+192.168.4.51:6351> get tel
+"1710****890"
+
+192.168.4.51:6351> STRLEN  tel  (strlen 统计字符长度)
+(integer) 11
+192.168.4.51:6351> STRLEN name
+
+休息到17:15
+192.168.4.51:6351> EXISTS name2
+(integer) 0
+192.168.4.51:6351> APPEND name2 aliec  (给已有值的变量赋值)
+(integer) 5
+192.168.4.51:6351> get name2
+"aliec"
+192.168.4.51:6351> 
+
+192.168.4.51:6351> EXISTS name
+(integer) 1
+192.168.4.51:6351> get name
+"yaya"
+192.168.4.51:6351> APPEND name 666
+(integer) 7
+192.168.4.51:6351> get name
+"yaya666"
+
+setbit  yayabaobao  1  1
+setbit  yayabaobao  2  0
+setbit  yayabaobao  3 1
+setbit  yayabaobao 4  1
+
+1011
+192.168.4.51:6351> setbit  yayabaobao  1  1
+(integer) 0
+192.168.4.51:6351> setbit  yayabaobao  2  1
+(integer) 0
+192.168.4.51:6351> setbit  yayabaobao  3  1
+(integer) 0
+192.168.4.51:6351> setbit  yayabaobao  4  0
+(integer) 0
+192.168.4.51:6351> setbit  yayabaobao  5  1
+(integer) 0
+192.168.4.51:6351> keys *
+1) "tel"
+2) "name"
+3) "yayabaobao"
+4) "y"
+5) "x"
+6) "name2"
+7) "gel"
+8) "sex"
+192.168.4.51:6351> BITCOUNT yayabaobao
+(integer) 4
+192.168.4.51:6351> 
+
+192.168.4.51:6351> set x 100
+192.168.4.51:6351> get x
+"100"
+192.168.4.51:6351> DECRBY x 20 (decrby x值减去20)
+(integer) 80 
+192.168.4.51:6351> DECR x   (decr x值自减1,若不存在在赋值0在减去1)
+(integer) 60
+192.168.4.51:6351> get x
+"60"
+192.168.4.51:6351> 
+
+192.168.4.51:6351> get tel
+"1710****890"
+192.168.4.51:6351> getrange tel 1 2
+"71"
+192.168.4.51:6351> 
+192.168.4.51:6351> 
+192.168.4.51:6351> GETRANGE tel 0 3(第一个带第四个)
+"1710"
+192.168.4.51:6351> GETRANGE tel -2 -1(倒数第二个到倒数第一个)
+"90"
+192.168.4.51:6351> 
+192.168.4.51:6351> GETRANGE tel -3 -1
+"890"
+192.168.4.51:6351> MGET tel  x2 
+1) "1710****890"
+2) "-1"
+192.168.4.51:6351> get x2
+"-1"
+192.168.4.51:6351> 
+192.168.4.51:6351> set x  201
+OK
+192.168.4.51:6351> get x
+"201"
+192.168.4.51:6351> incr x (自加1)
+(integer) 202
+192.168.4.51:6351> incr x
+(integer) 203
+192.168.4.51:6351> get x
+"203"
+192.168.4.51:6351> 
+192.168.4.51:6351> INCRBY x 3
+(integer) 206
+192.168.4.51:6351> INCRBY x 6
+(integer) 212
+192.168.4.51:6351> get x
+"212"
+192.168.4.51:6351> 
+
+192.168.4.51:6351> INCRBY x 0.3
+(error) ERR value is not an integer or out of range
+192.168.4.51:6351> 
+192.168.4.51:6351> INCRBYFLOAT  x   0.3 (非整数加float)
+"212.3"
+192.168.4.51:6351> INCRBYFLOAT  x   0.9
+"213.2"
+192.168.4.51:6351> 
+192.168.4.51:6351> set j 10 k 20
+(error) ERR syntax error
+192.168.4.51:6351> set j 10
+OK
+192.168.4.51:6351> 
+192.168.4.51:6351> mset j 10 k 20
+OK
+192.168.4.51:6351> mget j k
+1) "10"
+2) "20"
+192.168.4.51:6351> get j
+"10"
+
+
+
+================list列表==============
+redis的list是一个字符队列
+先进后出
+一个key可以有多个值
+
+lpush key value 值1 值2 .....
+lpush name bob jim tom
+lrange name 0  2  (获取name的值)
+1) "tom"
+2) "haha"
+3) "jim"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
